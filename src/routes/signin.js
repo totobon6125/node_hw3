@@ -7,10 +7,10 @@ const router = express.Router()
 
 // 로그인 API
 router.post('/sign-in', async (req, res, next) => {
-    // 1. `email`, `password`를 **body**로 전달받습니다.
+    // 1. `nickname`, `password`를 **body**로 전달받습니다.
     const { nickname, password } = req.body
 
-    // 2. 전달 받은 `email`에 해당하는 사용자가 있는지 확인합니다.
+    // 2. 전달 받은 `nickname`에 해당하는 사용자가 있는지 확인합니다.
     const user = await prisma.users.findFirst({ where: { nickname } })
     if (!user) {
         return res.status(401).json({ errMsg: 'nickname 이 존재하지 않습니다.' })
