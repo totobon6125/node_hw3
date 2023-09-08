@@ -42,7 +42,7 @@ router.get('/posts', async (req, res, next) => {
 })
 
 
-// 게시글 상세 API
+// 게시글 상세 조회 API
 router.get('/posts/:postId', async (req, res, next) => {
     const { postId } = req.params
     const post = await prisma.posts.findFirst({
@@ -58,5 +58,71 @@ router.get('/posts/:postId', async (req, res, next) => {
     return res.status(200).json({ data: post })
 })
 
+
+// 게시글 수정 API
+router.put('/posts/:postId', authMiddleware, async (req, res, next) => {
+    try {
+        const { userId } = req.user;
+        const { postId } = req.params;
+        const { title, content } = req.body;
+
+        const post = await prisma.posts.findUnique({
+            where: { postId: +postId },
+        });
+
+        if (post["UserId"] !== userId) {
+
+            return res.status(403).json({ errorMessage: '게시글 수정 권한이 없습니다' });
+        }
+
+        if (!post) {
+
+            return res.status(404).json({ message: '게시글이 존재하지 않습니다.' });
+        }
+
+
+        // 게시글 수정.
+        await prisma.posts.update({
+            data: {
+                title, content
+            },
+            where: {
+                postId: +postId,
+            },
+        });
+
+        return res.status(200).json({ data: '게시글이 수정되었습니다.' });
+    } catch (err) {
+
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
+
+// 게시글 삭제 API - DELETE
+router.delete('/posts/:postId', authMiddleware, async (req, res) => {
+    try {
+      const { postId } = req.params;
+  
+      // 해당 postId와 일치하는 게시글을 조회
+      const post = await prisma.posts.findUnique({
+        where: { postId: +postId },
+      });
+  
+      if (!post) {
+        return res.status(404).json({ message: '게시글이 존재하지 않습니다.' });
+      }
+  
+      // 게시글 삭제
+      await prisma.posts.delete({
+        where: { postId: +postId },
+      });
+  
+      return res.status(200).json({ message: '게시글이 삭제되었습니다.' });
+    } catch (err) {
+
+      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+  });
 
 export default router;
