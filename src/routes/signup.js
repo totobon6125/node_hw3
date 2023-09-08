@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 
 import { prisma } from '../utils/prisma/index.js'
+
 const router = express.Router()
 
 
@@ -18,7 +19,7 @@ router.post('/sign-up', async (req, res, next) => {
   // 유효성 검사
   if (isExistNickName) {
 
-    return res.status(409).json({ msg: '중복된 nickname 입니다.' })
+    return res.status(409).json({ errMsg: '중복된 nickname 입니다.' })
   }
 
   // nickname 대소문자 상관없이 영문과 숫자 섞어서 3자리 이상
@@ -30,22 +31,22 @@ router.post('/sign-up', async (req, res, next) => {
   // password 안에 nickname 이 포함되면 안됨.
   if (!nicknameRegex.test(nickname)) {
 
-    return res.status(400).json({ msg: 'nickname 조건에 맞지 않습니다.' })
+    return res.status(400).json({ errMsg: 'nickname 조건에 맞지 않습니다.' })
   }
 
   if (!passwordRegex.test(password)) {
 
-    return res.status(400).json({ msg: 'password 조건에 맞지 않습니다.' })
+    return res.status(400).json({ errMsg: 'password 조건에 맞지 않습니다.' })
   }
 
   if (password.includes(nickname)) {
 
-    return res.status(400).json({ msg: 'password 안에 nickname 이 있습니다.' })
+    return res.status(400).json({ errMsg: 'password 안에 nickname 이 있습니다.' })
   }
 
   if (password !== confirm) {
 
-    return res.status(400).json({ msg: '확인용 password 가 틀렸습니다.' })
+    return res.status(400).json({ errMsg: '확인용 password 가 틀렸습니다.' })
   }
 
 
